@@ -29,15 +29,17 @@ public struct Span {
          - Parameter traceId: The date at which the event occurred.
          - Parameter spanId: The information associated with the event.
          */
-        public init(traceId: UUID, spanId: UUID) {
-            self.traceId = traceId
+        public init(traceIdHigh: String, traceIdLow: String, spanId: String) {
+            self.traceIdHigh = traceIdHigh
+            self.traceIdLow = traceIdLow
             self.spanId = spanId
         }
 
         /// The unique number that identifies the (unique) trace in which the node (span) is part of.
-        public let traceId: UUID
+        public let traceIdLow: String
+        public let traceIdHigh: String
         /// A unique number to identify a span.
-        public let spanId: UUID
+        public let spanId: String
     }
 
     /**
@@ -145,7 +147,7 @@ public struct Span {
     /// The unique identification of the span and its trace.
     public let spanRef: Span.Context
     /// The parent span id. Nil for a root node.
-    public let parentSpanId: UUID?
+    public let parentSpanId: String?
     /** A human-readable string which concisely represents the work done by the span.
      See [OpenTracing Semantic Specification](https://opentracing.io/specification/) for the naming conventions.*/
     public let operationName: String

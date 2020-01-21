@@ -6,6 +6,26 @@
 //
 
 import Foundation
+import JavaScriptCore
+
+public final class JsUUID {
+    let jsSource = "var _generateUUID = function _generateUUID() { var p0 = \"00000000\" + Math.abs((Math.random() * 0xFFFFFFFF) | 0).toString(16); var p1 = \"00000000\" + Math.abs((Math.random() * 0xFFFFFFFF) | 0).toString(16); return p0.substr(-8) + p1.substr(-8);}"
+    var context = JSContext()
+    let genUUIDFunction: JSValue
+    
+    
+    init() {
+        context!.evaluateScript(jsSource)
+        genUUIDFunction = (context?.objectForKeyedSubscript("_generateUUID"))!
+    }
+    
+    func _id() -> String! {
+        return genUUIDFunction.call(withArguments: [])?.toString()
+    }
+    
+}
+
+let JsUUIDGenerator = JsUUID()
 
 /// A tracer for Jaeger spans.
 public typealias JaegerTracer = BasicTracer
@@ -14,7 +34,8 @@ public typealias JaegerTracer = BasicTracer
 public final class BasicTracer: Tracer {
 
     /// A fixed id for the tracer.
-    let tracerId = UUID()
+    let tracerIdHigh = JsUUIDGenerator._id()
+    let tracerIdLow = JsUUIDGenerator._id()
     /// The agent used for the caching process.
     private let agent: Agent
 
@@ -41,7 +62,7 @@ public final class BasicTracer: Tracer {
 
         let span = Span(
             tracer: self,
-            spanRef: .init(traceId: self.tracerId, spanId: UUID()),
+            spanRef: .init(traceIdHigh: self.tracerIdHigh!, traceIdLow: self.tracerIdLow!, spanId: JsUUIDGenerator._id()),
             parentSpanRef: reference,
             operationName: operationName,
             flag: .sampled,

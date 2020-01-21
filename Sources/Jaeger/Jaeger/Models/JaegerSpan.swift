@@ -31,16 +31,16 @@ public struct JaegerSpan: SpanConvertible {
     public init(span: Span) {
         /* When splitting the UUID in two parts, we guarantee that the server will combine them again to recreate the same and
          valid UUID as per RFC 4122 version */
-        traceIdLow = Int64(bitPattern: span.spanRef.traceId.firstHalfBits) // split the uuid in two parts!
-        traceIdHigh = Int64(bitPattern: span.spanRef.traceId.secondHalfBits) // split the uuid in two parts!
+        traceIdLow = span.spanRef.traceIdLow // split the uuid in two parts!
+        traceIdHigh = span.spanRef.traceIdHigh // split the uuid in two parts!
         // When using the most significant bits, we are not creating a valid UUID. But this number is random enough for our use case.
-        spanId = Int64(bitPattern: span.spanRef.spanId.firstHalfBits) // generates an almost random new id from a UUID, see doc for firstHalfBits!
+        spanId = span.spanRef.spanId // generates an almost random new id from a UUID, see doc for firstHalfBits!
 
         if let parentSpanId = span.parentSpanId {
             // When using the most significant bits, we are not creating a valid UUID. But this number is random enough for our use case.
-            self.parentSpanId = Int64(bitPattern: parentSpanId.firstHalfBits)  // generates an almost random new id from a UUID, see doc for firstHalfBits!
+            self.parentSpanId = parentSpanId  // generates an almost random new id from a UUID, see doc for firstHalfBits!
         } else { // root span
-            self.parentSpanId = 0
+            self.parentSpanId = "0"
         }
 
         operationName = span.operationName
@@ -73,11 +73,11 @@ public struct JaegerSpan: SpanConvertible {
          */
         init(ref: Span.Reference) {
             // When using the most significant bits, we are not creating a valid UUID. But this number is random enough for our use case.
-            spanId = Int64(bitPattern: ref.context.spanId.firstHalfBits) // generates an almost random new id from a UUID, see doc for firstHalfBits!
+            spanId = ref.context.spanId // generates an almost random new id from a UUID, see doc for firstHalfBits!
             /* When splitting the UUID in two parts, we guarantee that the server will combine them again to recreate the same and
              valid UUID as per RFC 4122 version */
-            traceIdLow = Int64(bitPattern: ref.context.traceId.firstHalfBits) // split the uuid in two parts!
-            traceIdHigh = Int64(bitPattern: ref.context.traceId.secondHalfBits) // split the uuid in two parts!
+            traceIdLow = ref.context.traceIdLow // split the uuid in two parts!
+            traceIdHigh = ref.context.traceIdHigh // split the uuid in two parts!
 
             switch ref.refType {
             case .childOf:
@@ -102,21 +102,21 @@ public struct JaegerSpan: SpanConvertible {
         /// The relationship to the span.
         let refType: JaegerSpanReference.RefType
         /// The least significant 64 bits of a traceid.
-        let traceIdLow: Int64
+        let traceIdLow: String
         /// The most significant 64 bits of a traceid. **Set this to 0 when only using 64bit ids.**
-        let traceIdHigh: Int64
+        let traceIdHigh: String
         /// The span id. Make certain that there is a low risk of collision when producing the id.
-        let spanId: Int64
+        let spanId: String
     }
 
     /// The least significant 64 bits of a traceid.
-    let traceIdLow: Int64
+    let traceIdLow: String
     /// The most significant 64 bits of a traceid. **Set this to 0 when only using 64bit ids.**
-    let traceIdHigh: Int64
+    let traceIdHigh: String
     /// The span id. Make certain that there is a low risk of collision when producing the id.
-    let spanId: Int64
+    let spanId: String
     /// The parent node id. Make certain that there is a low risk of collision when producing the id.
-    let parentSpanId: Int64
+    let parentSpanId: String
     /// A human-readable string which concisely represents the work done by the span.
     let operationName: String
     /// The list of references to other nodes.
