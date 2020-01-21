@@ -9,6 +9,10 @@ import Foundation
 import JavaScriptCore
 
 public final class JsUUID {
+    /// the processor mediator service can accept trace ids only in certain formats
+    /// if understanding is correct, they need to be in 64 bit and signed
+    /// swift UUIDs seemed problematic
+    /// as an alternative approach that is known to work - use the same JS UUID generation function in swift
     let jsSource = "var _generateUUID = function _generateUUID() { var p0 = \"00000000\" + Math.abs((Math.random() * 0xFFFFFFFF) | 0).toString(16); var p1 = \"00000000\" + Math.abs((Math.random() * 0xFFFFFFFF) | 0).toString(16); return p0.substr(-8) + p1.substr(-8);}"
     var context = JSContext()
     let genUUIDFunction: JSValue
@@ -22,7 +26,6 @@ public final class JsUUID {
     func _id() -> String! {
         return genUUIDFunction.call(withArguments: [])?.toString()
     }
-    
 }
 
 let JsUUIDGenerator = JsUUID()
