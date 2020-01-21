@@ -133,7 +133,13 @@ public struct Span {
 
         self.tracer = tracer
         self.spanRef = spanRef
-        self.parentSpanId = parentSpanRef?.context.spanId
+//        self.parentSpanId = parentSpanRef?.context.spanId
+        if let parentSpanId = parentSpanRef?.context.spanId {
+            // When using the most significant bits, we are not creating a valid UUID. But this number is random enough for our use case.
+            self.parentSpanId = parentSpanId  // generates an almost random new id from a UUID, see doc for firstHalfBits!
+        } else { // root span
+            self.parentSpanId = "0"
+        }
         self.references = [parentSpanRef].compactMap { $0 }
         self.operationName = operationName
         self.flag = flag
