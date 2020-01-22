@@ -138,7 +138,7 @@ public struct Span {
             // When using the most significant bits, we are not creating a valid UUID. But this number is random enough for our use case.
             self.parentSpanId = parentSpanId  // generates an almost random new id from a UUID, see doc for firstHalfBits!
         } else { // root span
-            self.parentSpanId = "0"
+            self.parentSpanId = "0000000000000000"
         }
         self.references = [parentSpanRef].compactMap { $0 }
         self.operationName = operationName
